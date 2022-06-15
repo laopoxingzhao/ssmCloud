@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org./dtd/mybatis-3-mapper.dtd">
+<!--映射文件-->
+<mapper namespace="com.pan.mapper.FileMapper">
+
+    <resultMap id="fileMap" type="files">
+        <id column="file_id" property="file_id"/>
+        <result column="file_name" property="file_name"/>
+        <result column="file_type" property="file_type"/>
+        <result column="file_size" property="file_size"/>
+        <result column="parent_id" property="parent_id"/>
+        <result column="shared"  property="shared"/>
+
+        <collection property="file_user" ofType="user">
+            <id column="id" property="id"/>
+            <result column="username" property="username"/>
+        </collection>
+    </resultMap>
+    <select id="findFile" resultMap="fileMap">
+        select file.* ,file.shared,user.username from
+            file
+        left join
+            user
+        on
+            file.file_user_id=user.id
+        where
+            parent_id=#{parent_id}
+    </select>
+
+    <delete id="delete" parameterType="integer">
+        delete from file where file_id=#{file_id}
+    </delete>
+
+    <insert id="addFile">
+        insert into file values(null,#{file_name},#{file_type},#{file_size},#{parent_id},#{file_user},#{shared})
+    </insert>
+
+    <select id="findParent" resultType="integer">
+        select parent_id from file where file_id=#{file_id}
+    </select>
+
+    <select id="findIdByName" resultType="integer" parameterType="java.lang.String">
+        select file_id from file where file_name=#{file_name}
+    </select>
+
+   <update id="shared">
+       update file SET shared = #{shared} WHERE file_id = #{file_id}
+   </update>
+</mapper>
